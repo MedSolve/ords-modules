@@ -1,7 +1,7 @@
 import { expect } from 'chai';
-import { AuthToken } from './auth.token';
+import { DatabaseMongo } from './database.mongo';
 
-describe('AuthToken', function () {
+describe('DatabaseMongo', function () {
     it('no services should be present', function () {
         //var regex = new ServiceRegistry();
         expect(0).to.equal(0);

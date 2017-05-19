@@ -1,23 +1,22 @@
-import { ServiceRegistry,  } from '@ords/core';
-import { Database, Main } from '../../proposals';
+import { ServiceRegistry, proposals  } from '@ords/core';
 import * as Mongo from 'mongodb';
 
 /**
  * MongoDB database connections 
  * Root: db
  */
-export class DatabaseMongo implements Database.Proposal {
+export class DatabaseMongo implements proposals.Database.Proposal {
     /**
      * Database connection
      */
     private db: Mongo.Db
-    public create(request: Main.Types.Request, mH: Main.Types.PairObserver, pH: Main.Types.PairObserver) {
+    public create(request: proposals.Main.Types.Request, mH: proposals.Main.Types.PairObserver, pH: proposals.Main.Types.PairObserver) {
 
         // send operation flag back
-        mH.next([Main.Flag.FLAGSEND, Main.Flag.DataType.RAW])
+        mH.next([proposals.Main.Flag.FLAGSEND, proposals.Main.Flag.DataType.RAW])
         mH.complete();
 
-        let op: Database.Packages.Create = {
+        let op: proposals.Database.Packages.Create = {
             resource: undefined,
             data: {},
             query: {}
@@ -74,13 +73,13 @@ export class DatabaseMongo implements Database.Proposal {
             }
         });
     }
-    public read(request: Main.Types.Request, mH: Main.Types.PairObserver, pH: Main.Types.PairObserver) {
+    public read(request: proposals.Main.Types.Request, mH: proposals.Main.Types.PairObserver, pH: proposals.Main.Types.PairObserver) {
 
         // send operation flag back
-        mH.next([Main.Flag.FLAGSEND, Main.Flag.DataType.MULTIPLE])
+        mH.next([proposals.Main.Flag.FLAGSEND, proposals.Main.Flag.DataType.MULTIPLE])
         mH.complete();
 
-        let op: Database.Packages.Read = {
+        let op: proposals.Database.Packages.Read = {
             resource: '',
             query: {}
         };
@@ -161,13 +160,13 @@ export class DatabaseMongo implements Database.Proposal {
 
         });
     }
-    public update(request: Main.Types.Request, mH: Main.Types.PairObserver, pH: Main.Types.PairObserver) {
+    public update(request: proposals.Main.Types.Request, mH: proposals.Main.Types.PairObserver, pH: proposals.Main.Types.PairObserver) {
 
         // send operation flag back
-        mH.next([Main.Flag.FLAGSEND, Main.Flag.DataType.RAW])
+        mH.next([proposals.Main.Flag.FLAGSEND, proposals.Main.Flag.DataType.RAW])
         mH.complete();
 
-        let op: Database.Packages.Patch = {
+        let op: proposals.Database.Packages.Patch = {
             resource: '',
             data: {},
             query: {}
@@ -201,13 +200,13 @@ export class DatabaseMongo implements Database.Proposal {
         });
 
     }
-    public patch(request: Main.Types.Request, mH: Main.Types.PairObserver, pH: Main.Types.PairObserver) {
+    public patch(request: proposals.Main.Types.Request, mH: proposals.Main.Types.PairObserver, pH: proposals.Main.Types.PairObserver) {
 
         // send operation flag back
-        mH.next([Main.Flag.FLAGSEND, Main.Flag.DataType.RAW])
+        mH.next([proposals.Main.Flag.FLAGSEND, proposals.Main.Flag.DataType.RAW])
         mH.complete();
 
-        let op: Database.Packages.Patch = {
+        let op: proposals.Database.Packages.Patch = {
             resource: '',
             data: {},
             query: {}
@@ -240,13 +239,13 @@ export class DatabaseMongo implements Database.Proposal {
             });
         });
     }
-    public delete(request: Main.Types.Request, mH: Main.Types.PairObserver, pH: Main.Types.PairObserver) {
+    public delete(request: proposals.Main.Types.Request, mH: proposals.Main.Types.PairObserver, pH: proposals.Main.Types.PairObserver) {
 
         // send operation flag back
-        mH.next([Main.Flag.FLAGSEND, Main.Flag.DataType.RAW])
+        mH.next([proposals.Main.Flag.FLAGSEND, proposals.Main.Flag.DataType.RAW])
         mH.complete();
 
-        let op: Database.Packages.Delete = {
+        let op: proposals.Database.Packages.Delete = {
             resource: '',
             query: {}
         };

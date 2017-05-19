@@ -3,7 +3,7 @@ import * as express from 'express';
 /**
  * The request
  */
-export interface ExpressConnectorRequest extends express.Request {
+export interface ConnectorExpressRequest extends express.Request {
     /**
      * Body of a request
      */
@@ -21,7 +21,7 @@ export interface ExpressConnectorRequest extends express.Request {
 /**
  * Express connector
  */
-export class ExpressConnector {
+export class ConnectorExpress {
     /**
      * Maps that bind application logic
      */

@@ -1,9 +1,9 @@
 {
   "name": "@ords/modules",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Modules for ords-core microservices",
-  "main": "dist/src/index",
-  "typings": "dist/src/index",
+  "main": "dist/index",
+  "typings": "dist/index",
   "scripts": {
     "test": "tsc; mocha dist/*/*.test.*",
     "clean": "./scripts/cleanBuild.sh",

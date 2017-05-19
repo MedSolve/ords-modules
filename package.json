@@ -1,0 +1,33 @@
+{
+  "name": "@ords/modules",
+  "version": "0.9.0",
+  "description": "Modules for ords-core microservices",
+  "main": "dist/src/index.js",
+  "scripts": {
+    "test": "tsc; mocha dist/*/*.test.*",
+    "clean": "./scripts/cleanBuild.sh",
+    "build-depoly": "tsc",
+    "build-env": "npm install && typings install"
+  },
+  "repository": {
+    "type": "git",  
+    "url": "git://github.com/medsolve/ords-modules.git"
+  },
+  "keywords": [
+    "microservice",
+    "proposals",
+    "modules"
+  ],
+  "author": "Rune k. Rasmussen",
+  "license": "MIT",
+  "dependencies": {
+    "@ords/core": "^0.9.0",
+    "express": "^4.15.2",
+    "jsonwebtoken": "^7.4.1",
+    "mongodb": "^2.2.26",
+    "rxjs": "^5.3.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0"
+  }
+}

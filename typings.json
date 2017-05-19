@@ -1,0 +1,14 @@
+{
+  "name": "ords-modules",
+  "dependencies": {
+    "express": "registry:npm/express#4.14.0+20170217205433",
+    "jsonwebtoken": "registry:npm/jsonwebtoken#7.1.8+20160811031426",
+    "mongodb": "registry:dt/mongodb#2.1.0+20170212052546"
+  },
+  "globalDevDependencies": {
+    "node": "registry:dt/node#7.0.0+20170322231424"
+  },
+  "devDependencies": {
+    "chai": "registry:npm/chai#3.5.0+20160723033700"
+  }
+}

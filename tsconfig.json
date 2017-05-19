@@ -1,0 +1,17 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "module": "commonjs",
+        "noImplicitAny": true,
+        "removeComments": false,
+        "preserveConstEnums": true,
+        "declaration": true,
+        "outDir": "dist",
+        "target": "es6",
+        "experimentalDecorators": true
+    },
+    "exclude": [
+        "node_modules", 
+        "dist"
+    ]
+}

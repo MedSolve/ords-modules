@@ -11,7 +11,7 @@
     "build-env": "npm install && typings install"
   },
   "repository": {
-    "type": "git",  
+    "type": "git",
     "url": "git://github.com/medsolve/ords-modules.git"
   },
   "keywords": [
@@ -26,7 +26,8 @@
     "express": "^4.15.2",
     "jsonwebtoken": "^7.4.1",
     "mongodb": "^2.2.26",
-    "rxjs": "^5.3.0"
+    "rxjs": "^5.3.0",
+    "ts-md5": "^1.2.0"
   },
   "devDependencies": {
     "chai": "^3.5.0"

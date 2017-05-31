@@ -1,6 +1,7 @@
 import { ServiceRegistry, proposals  } from '@ords/core';
 import * as jwt from 'jsonwebtoken';
 import { Observable } from 'rxjs';
+import { Md5 } from 'ts-md5/dist/md5';
 
 export class AuthToken implements proposals.Auth.Proposal {
     /**
@@ -77,6 +78,11 @@ export class AuthToken implements proposals.Auth.Proposal {
             opPackage.data = recived.meta;
             opPackage.query = recived.existing;
 
+            // check if password field exists and hash it
+            if (opPackage.data.password) {
+                opPackage.data.password = Md5.hashStr(opPackage.data.password);
+            }
+
             // requret request
             let innerRequest: proposals.Main.Types.Request = {
                 auth: request.auth,
@@ -133,6 +139,10 @@ export class AuthToken implements proposals.Auth.Proposal {
             // map the recived to package
             opPackage.data = recived.meta;
             opPackage.query = { id: recived.user };
+
+            if (opPackage.data.password) {
+                opPackage.data.password = Md5.hashStr(opPackage.data.password);
+            }
 
             // requret request
             let innerRequest: proposals.Main.Types.Request = {
@@ -201,6 +211,10 @@ export class AuthToken implements proposals.Auth.Proposal {
 
             // set limit to only one
             opPackage.query._limit = 1;
+
+            if (opPackage.query.password) {
+                opPackage.query.password = Md5.hashStr(opPackage.query.password);
+            }
 
             // requret request
             let innerRequest: proposals.Main.Types.Request = {

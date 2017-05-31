@@ -33,7 +33,7 @@ export class AuthToken implements proposals.Auth.Proposal {
         this.encode = encode;
 
         // add services
-        this.ms.addMicroService(this.root, 'signup', this.signOut.bind(this));
+        this.ms.addMicroService(this.root, 'signup', this.signUp.bind(this));
         this.ms.addMicroService(this.root, 'signin', this.signIn.bind(this));
         this.ms.addMicroService(this.root, 'signout', this.signOut.bind(this));
         this.ms.addMicroService(this.root, 'patch', this.patch.bind(this));
@@ -91,16 +91,31 @@ export class AuthToken implements proposals.Auth.Proposal {
 
             // perform signup with information
             let action = this.ms.act('db', 'create', innerRequest);
-            action.meta.subscribe(mH.next, mH.error, mH.complete);
+            action.meta.subscribe(
+                (val) => { mH.next([val[0], val[1]]) },
+                (err) => { mH.error(err) },
+                () => { mH.complete() }
+            );
+
+            // user created
+            let user: any = undefined;
+
             action.package.subscribe(
-                value => {
+                (val) => {
+                    user = val[1];
+                }, 
+                (err) => { 
+                    pH.error(err)
+                }, 
+                () => {
                     // skip meta and send back found value
-                    if (value[1] == 0) {
+                    if (user == 0) {
                         pH.error(proposals.Auth.Flag.Error.USER_EXISTS)
                     } else {
-                        pH.next([0, value]);
+                        pH.next([0, user]);
+                        pH.complete();
                     }
-                }, pH.error, pH.complete);
+                });
         });
     }
     /**
@@ -223,7 +238,6 @@ export class AuthToken implements proposals.Auth.Proposal {
             };
 
             let action = this.ms.act('db', 'read', innerRequest);
-            //action.meta.subscribe(, mH.error, mH.complete);
             action.meta.subscribe(
                 (val) => { mH.next([val[0], val[1]]) },
                 (err) => { mH.error(err) },

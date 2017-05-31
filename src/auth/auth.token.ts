@@ -1,13 +1,12 @@
-import { ServiceRegistry, proposals } from '@ords/core';
+import { ServiceRegistry, ShortenAct, proposals } from '@ords/core';
 import * as jwt from 'jsonwebtoken';
 import { Observable } from 'rxjs';
-import { Md5 } from 'ts-md5/dist/md5';
 
 export class AuthToken implements proposals.Auth.Proposal {
     /**
      * Reference to the ms instance
      */
-    private ms: ServiceRegistry
+    private msr: ServiceRegistry
     /**
      * Reference to the resource used in the system
      */
@@ -24,27 +23,30 @@ export class AuthToken implements proposals.Auth.Proposal {
      * Uses the microservice instance to get a hold of a database connection
      * Uses encode to for encryption of jwt
      */
-    constructor(ms: ServiceRegistry, encode: string) {
+    constructor(msr: ServiceRegistry, encode: string) {
 
         // bind reference
-        this.ms = ms;
+        this.msr = msr;
 
         // bind encoded
         this.encode = encode;
 
         // add services
-        this.ms.addMicroService(this.root, 'signup', this.signUp.bind(this));
-        this.ms.addMicroService(this.root, 'signin', this.signIn.bind(this));
-        this.ms.addMicroService(this.root, 'signout', this.signOut.bind(this));
-        this.ms.addMicroService(this.root, 'patch', this.patch.bind(this));
-        this.ms.addMicroService(this.root, 'remove', this.remove.bind(this));
-        this.ms.addMicroService(this.root, 'validate', this.validate.bind(this));
-
+        this.msr.addMicroService(this.root, 'signup', this.signUp.bind(this));
+        this.msr.addMicroService(this.root, 'signin', this.signIn.bind(this));
+        this.msr.addMicroService(this.root, 'signout', this.signOut.bind(this));
+        this.msr.addMicroService(this.root, 'patch', this.patch.bind(this));
+        this.msr.addMicroService(this.root, 'remove', this.remove.bind(this));
+        this.msr.addMicroService(this.root, 'validate', this.validate.bind(this));
     }
     /**
      * Sign up a user
      */
     public signUp(request: proposals.Main.Types.Request, mH: proposals.Main.Types.PairObserver, pH: proposals.Main.Types.PairObserver) {
+
+        // set meta complete
+        mH.next([proposals.Main.Flag.FLAGSEND, proposals.Main.Flag.DataType.RAW])
+        mH.complete();
 
         /**
          * The package to be used in operation
@@ -74,54 +76,48 @@ export class AuthToken implements proposals.Auth.Proposal {
             // send back errors and perform action
         }, pH.error, () => {
 
-            // map the recived to package
-            opPackage.data = recived.meta;
-            opPackage.query = recived.existing;
+            // check that any meta is recived
+            if (Object.keys(recived.meta).length === 0) {
 
-            // check if password field exists and hash it
-            if (opPackage.data.password) {
-                opPackage.data.password = Md5.hashStr(opPackage.data.password);
-            }
+                // No content provided about the user
+                pH.error(new Error('NO information about the user was provided'));
 
-            // requret request
-            let innerRequest: proposals.Main.Types.Request = {
-                auth: request.auth,
-                package: Observable.pairs(opPackage)
-            };
+            } else {
 
-            // perform signup with information
-            let action = this.ms.act('db', 'create', innerRequest);
-            action.meta.subscribe(
-                (val) => { mH.next([val[0], val[1]]) },
-                (err) => { mH.error(err) },
-                () => { mH.complete() }
-            );
+                // map the recived to package
+                opPackage.data = recived.meta;
+                opPackage.query = recived.existing;
 
-            // user created
-            let user: any = undefined;
+                // requret request
+                let innerRequest: proposals.Main.Types.Request = {
+                    auth: request.auth,
+                    package: Observable.pairs(opPackage)
+                };
 
-            action.package.subscribe(
-                (val) => {
-                    user = val[1];
-                }, 
-                (err) => { 
-                    pH.error(err)
-                }, 
-                () => {
-                    // skip meta and send back found value
-                    if (user == 0) {
-                        pH.error(proposals.Auth.Flag.Error.USER_EXISTS)
+                // perform signup with information
+                ShortenAct.tryCatch(this.msr, 'db', 'create', innerRequest, (err: Error, user: any) => {
+
+                    // check if any error
+                    if (err) {
+                        return pH.error(err);
+                    } else if (user == 0) {
+                        return pH.error(proposals.Auth.Flag.Error.USER_EXISTS)
                     } else {
                         pH.next([0, user]);
                         pH.complete();
                     }
                 });
+            }
         });
     }
     /**
-     * Patch the user so that 
+     * Patch the user with new information
      */
     public patch(request: proposals.Main.Types.Request, mH: proposals.Main.Types.PairObserver, pH: proposals.Main.Types.PairObserver) {
+
+        // set meta complete
+        mH.next([proposals.Main.Flag.FLAGSEND, proposals.Main.Flag.DataType.RAW])
+        mH.complete();
 
         /**
          * The packete to be used in operation
@@ -151,29 +147,47 @@ export class AuthToken implements proposals.Auth.Proposal {
             // send back errors and perform action
         }, pH.error, () => {
 
-            // map the recived to package
-            opPackage.data = recived.meta;
-            opPackage.query = { id: recived.user };
+            // check that user has been set
+            if (recived.user === null) {
 
-            if (opPackage.data.password) {
-                opPackage.data.password = Md5.hashStr(opPackage.data.password);
+                // No content provided about the user
+                pH.error(new Error('NO information about the user was provided'));
+
+            } else {
+
+                // map the recived to package
+                opPackage.data = recived.meta;
+                opPackage.query = { id: recived.user };
+
+                // requret request
+                let innerRequest: proposals.Main.Types.Request = {
+                    auth: request.auth,
+                    package: Observable.pairs(opPackage)
+                };
+
+                ShortenAct.tryCatch(this.msr, 'db', 'patch', innerRequest, (err: Error, user: any) => {
+
+                    // check if any error
+                    if (err) {
+                        return pH.error(err);
+                    } else if (user == 0) {
+                        return pH.error(proposals.Auth.Flag.Error.USER_EXISTS)
+                    } else {
+                        pH.next([0, user]);
+                        pH.complete();
+                    }
+                });
             }
-
-            // requret request
-            let innerRequest: proposals.Main.Types.Request = {
-                auth: request.auth,
-                package: Observable.pairs(opPackage)
-            };
-
-            let action = this.ms.act('db', 'patch', innerRequest);
-            action.meta.subscribe(mH.next, mH.error, mH.complete);
-            action.package.subscribe(pH.next, pH.error, pH.complete);
         });
     }
     /**
      * Validate a user session
      */
     public validate(request: proposals.Main.Types.Request, mH: proposals.Main.Types.PairObserver, pH: proposals.Main.Types.PairObserver) {
+
+        // set meta complete
+        mH.next([proposals.Main.Flag.FLAGSEND, proposals.Main.Flag.DataType.RAW])
+        mH.complete();
 
         /**
          * The packete to be used in operation
@@ -196,7 +210,7 @@ export class AuthToken implements proposals.Auth.Proposal {
                 if (err) {
                     pH.error(new Error(proposals.Auth.Flag.Error.NO_VALID_AUTH))
                 } else {
-                    pH.next(decoded);
+                    pH.next([0, decoded]);
                     pH.complete();
                 }
             });
@@ -206,6 +220,10 @@ export class AuthToken implements proposals.Auth.Proposal {
      * Sign up a user
      */
     public signIn(request: proposals.Main.Types.Request, mH: proposals.Main.Types.PairObserver, pH: proposals.Main.Types.PairObserver) {
+
+        // set meta complete
+        mH.next([proposals.Main.Flag.FLAGSEND, proposals.Main.Flag.DataType.RAW])
+        mH.complete();
 
         /**
          * The packete to be used in operation
@@ -225,11 +243,7 @@ export class AuthToken implements proposals.Auth.Proposal {
         }, pH.error, () => {
 
             // set limit to only one
-            opPackage.query._limit = 1;
-
-            if (opPackage.query.password) {
-                opPackage.query.password = Md5.hashStr(opPackage.query.password);
-            }
+            opPackage.limit = 1;
 
             // requret request
             let innerRequest: proposals.Main.Types.Request = {
@@ -237,33 +251,18 @@ export class AuthToken implements proposals.Auth.Proposal {
                 package: Observable.pairs(opPackage)
             };
 
-            let action = this.ms.act('db', 'read', innerRequest);
-            action.meta.subscribe(
-                (val) => { mH.next([val[0], val[1]]) },
-                (err) => { mH.error(err) },
-                () => { mH.complete() }
-            );
+            ShortenAct.tryCatch(this.msr, 'db', 'read', innerRequest, (err: Error, user: Array<any>) => {
 
-            // set the found user
-            let foundUser: any = undefined;
-
-            action.package.subscribe(
-                (value) => {
-                    foundUser = value[1];
-                },
-                (err) => { pH.error(err) },
-                () => {
-
-                    // check that a user is found
-                    if (foundUser !== undefined) {
-                        // send signed token back
-                        pH.next([0, jwt.sign(foundUser.id, this.encode)]);
-                        pH.complete()
-                    } else {
-                        pH.error(proposals.Auth.Flag.Error.NO_USER_FOUND);
-                    }
+                // check if any error
+                if (err) {
+                    return pH.error(err);
+                } else if (user[0] === undefined) {
+                    return pH.error(proposals.Auth.Flag.Error.NO_USER_FOUND)
+                } else {
+                    pH.next([0, jwt.sign(user[0].id, this.encode)]);
+                    pH.complete();
                 }
-            );
+            });
         });
     }
     /**
@@ -283,6 +282,10 @@ export class AuthToken implements proposals.Auth.Proposal {
      * Sign up a user
      */
     public remove(request: proposals.Main.Types.Request, mH: proposals.Main.Types.PairObserver, pH: proposals.Main.Types.PairObserver) {
+
+        // set meta complete
+        mH.next([proposals.Main.Flag.FLAGSEND, proposals.Main.Flag.DataType.RAW])
+        mH.complete();
 
         /**
          * The packete to be used in operation
@@ -307,9 +310,18 @@ export class AuthToken implements proposals.Auth.Proposal {
                 package: Observable.pairs(opPackage)
             };
 
-            let action = this.ms.act('db', 'delete', innerRequest);
-            action.meta.subscribe(mH.next, mH.error, mH.complete);
-            action.package.subscribe(pH.next, pH.error, pH.complete);
+            ShortenAct.tryCatch(this.msr, 'db', 'delete', innerRequest, (err: Error, user: Boolean) => {
+
+                // check if any error
+                if (err) {
+                    return pH.error(err);
+                } else if (user == false) {
+                    return pH.error(proposals.Auth.Flag.Error.NO_USER_FOUND)
+                } else {
+                    pH.next([0, user]);
+                    pH.complete();
+                }
+            });
         });
     }
 }

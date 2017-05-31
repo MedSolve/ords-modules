@@ -103,68 +103,79 @@ export class DatabaseMongo implements proposals.Database.Proposal {
             let options: Mongo.FindOneOptions = {};
 
             // get limit from query
-            if (op.query._limit) {
-                options.limit = op.query._limit;
-                delete op.query._limit;
+            if (op.limit) {
+                options.limit = op.limit;
+                delete op.limit;
             }
 
             // get sort from query
-            if (op.query._sort) {
-                options.sort = op.query._sort;
-                delete op.query._sort;
+            if (op.sort) {
+                options.sort = op.sort;
+                delete op.sort;
             }
 
-            // cast _id to object id!
-            let curser = this.db.collection(op.resource).find(op.query, options);
+            // get elements from query
+            if (op.elements) {
+                options.fields = op.elements;
+                delete op.elements;
+            }
 
-            // how many documents found
-            let counter = 0;
+            // we are not ready for joins yet
+            if (op.joins) {
+                pH.error(new Error('Joins are not yet supported'));
+            } else {
 
-            // loop throughout documents found
-            let loop = () => {
+                // cast _id to object id!
+                let curser = this.db.collection(op.resource).find(op.query, options);
 
-                // check if next exsists
-                curser.hasNext((err: Error, flag: Boolean) => {
+                // how many documents found
+                let counter = 0;
 
-                    // check if error
-                    if (err === null) {
+                // loop throughout documents found
+                let loop = () => {
 
-                        // check if anything is left
-                        if (flag) {
+                    // check if next exsists
+                    curser.hasNext((err: Error, flag: Boolean) => {
 
-                            // then go and get the doc
-                            curser.next((innerErr, doc) => {
+                        // check if error
+                        if (err === null) {
 
-                                // if error send it back
-                                if (err === null) {
-                                    counter++
+                            // check if anything is left
+                            if (flag) {
 
-                                    // map out mongodb
-                                    doc.id = doc._id;
-                                    delete doc._id;
+                                // then go and get the doc
+                                curser.next((innerErr, doc) => {
 
-                                    pH.next([counter, doc]);
-                                    loop();
-                                } else {
-                                    pH.error(innerErr);
-                                }
-                            })
+                                    // if error send it back
+                                    if (err === null) {
+                                        counter++
 
-                            // if last record send back result
+                                        // map out mongodb
+                                        doc.id = doc._id;
+                                        delete doc._id;
+
+                                        pH.next([counter, doc]);
+                                        loop();
+                                    } else {
+                                        pH.error(innerErr);
+                                    }
+                                })
+
+                                // if last record send back result
+                            } else {
+                                pH.complete();
+                            }
+
+                            // if any report back
                         } else {
-                            pH.complete();
+                            pH.error(err);
                         }
+                    });
+                }
 
-                        // if any report back
-                    } else {
-                        pH.error(err);
-                    }
-                });
+                // start loop
+                loop();
             }
-
-            // start loop
-            loop();
-
         });
     }
     public update(request: proposals.Main.Types.Request, mH: proposals.Main.Types.PairObserver, pH: proposals.Main.Types.PairObserver) {

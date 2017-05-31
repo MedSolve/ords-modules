@@ -1,4 +1,4 @@
-import { ServiceRegistry, proposals  } from '@ords/core';
+import { ServiceRegistry, proposals } from '@ords/core';
 import * as Mongo from 'mongodb';
 
 /**
@@ -32,16 +32,17 @@ export class DatabaseMongo implements proposals.Database.Proposal {
         }, pH.error, () => {
 
             // replace object id in data
-            if (op.data._id) {
-                op.data._id = new Mongo.ObjectID(op.data._id);
+            if (op.data.id) {
+                op.data.id = new Mongo.ObjectID(op.data.id);
             }
 
             // if query is emtpy then dont look for any findone
             if (Object.keys(op.query).length) {
 
                 // replace object id in query
-                if (op.query._id) {
-                    op.query._id = new Mongo.ObjectID(op.query._id);
+                if (op.query.id) {
+                    op.query._id = new Mongo.ObjectID(op.query.id);
+                    delete op.query.id;
                 }
 
                 this.db.collection(op.resource).findOne(op.query).catch(pH.error).then((result: any) => {
@@ -94,8 +95,9 @@ export class DatabaseMongo implements proposals.Database.Proposal {
         }, pH.error, () => {
 
             // replace object id in query
-            if (op.query._id) {
-                op.query._id = new Mongo.ObjectID(op.query._id);
+            if (op.query.id) {
+                op.query._id = new Mongo.ObjectID(op.query.id);
+                delete op.query.id;
             }
 
             let options: Mongo.FindOneOptions = {};
@@ -136,6 +138,11 @@ export class DatabaseMongo implements proposals.Database.Proposal {
                                 // if error send it back
                                 if (err === null) {
                                     counter++
+
+                                    // map out mongodb
+                                    doc.id = doc._id;
+                                    delete doc._id;
+
                                     pH.next([counter, doc]);
                                     loop();
                                 } else {
@@ -182,13 +189,15 @@ export class DatabaseMongo implements proposals.Database.Proposal {
         }, pH.error, () => {
 
             // replace object id in data
-            if (op.data._id) {
-                op.data._id = new Mongo.ObjectID(op.data._id);
+            if (op.data.id) {
+                op.data._id = new Mongo.ObjectID(op.data.id);
+                delete op.data.id;
             }
 
             // replace object id in query
-            if (op.query._id) {
-                op.query._id = new Mongo.ObjectID(op.query._id);
+            if (op.query.id) {
+                op.query._id = new Mongo.ObjectID(op.query.id);
+                delete op.query.id;
             }
 
             this.db.collection(op.resource).replaceOne(op.query, op.data).catch(pH.error).then((result: Mongo.UpdateWriteOpResult) => {
@@ -222,13 +231,15 @@ export class DatabaseMongo implements proposals.Database.Proposal {
         }, pH.error, () => {
 
             // replace object id in query
-            if (op.query._id) {
-                op.query._id = new Mongo.ObjectID(op.query._id);
+            if (op.data.id) {
+                op.data._id = new Mongo.ObjectID(op.data.id);
+                delete op.data.id;
             }
 
-            // replace object id in data
-            if (op.data._id) {
-                op.data._id = new Mongo.ObjectID(op.data._id);
+            // replace object id in query
+            if (op.query.id) {
+                op.query._id = new Mongo.ObjectID(op.query.id);
+                delete op.query.id;
             }
 
             this.db.collection(op.resource).updateOne(op.query, op.data).catch(pH.error).then((result: Mongo.UpdateWriteOpResult) => {
@@ -260,8 +271,9 @@ export class DatabaseMongo implements proposals.Database.Proposal {
         }, pH.error, () => {
 
             // replace object id in query
-            if (op.query._id) {
-                op.query._id = new Mongo.ObjectID(op.query._id);
+            if (op.query.id) {
+                op.query._id = new Mongo.ObjectID(op.query.id);
+                delete op.query.id;
             }
 
             this.db.collection(op.resource)

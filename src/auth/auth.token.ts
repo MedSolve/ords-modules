@@ -1,4 +1,4 @@
-import { ServiceRegistry, proposals  } from '@ords/core';
+import { ServiceRegistry, proposals } from '@ords/core';
 import * as jwt from 'jsonwebtoken';
 import { Observable } from 'rxjs';
 import { Md5 } from 'ts-md5/dist/md5';
@@ -11,11 +11,11 @@ export class AuthToken implements proposals.Auth.Proposal {
     /**
      * Reference to the resource used in the system
      */
-    private resource: '_auth_token_accounts';
+    private resource = '_auth_token_accounts';
     /**
      * The root of for microservices
      */
-    private root: 'auth';
+    private root = 'auth';
     /**
      * JWT encoder
      */
@@ -90,7 +90,7 @@ export class AuthToken implements proposals.Auth.Proposal {
             };
 
             // perform signup with information
-            let action = this.ms.act('db', 'create', request);
+            let action = this.ms.act('db', 'create', innerRequest);
             action.meta.subscribe(mH.next, mH.error, mH.complete);
             action.package.subscribe(
                 value => {
@@ -150,7 +150,7 @@ export class AuthToken implements proposals.Auth.Proposal {
                 package: Observable.pairs(opPackage)
             };
 
-            let action = this.ms.act('db', 'patch', request);
+            let action = this.ms.act('db', 'patch', innerRequest);
             action.meta.subscribe(mH.next, mH.error, mH.complete);
             action.package.subscribe(pH.next, pH.error, pH.complete);
         });
@@ -222,18 +222,34 @@ export class AuthToken implements proposals.Auth.Proposal {
                 package: Observable.pairs(opPackage)
             };
 
-            let action = this.ms.act('db', 'read', request);
-            action.meta.subscribe(mH.next, mH.error, mH.complete);
+            let action = this.ms.act('db', 'read', innerRequest);
+            //action.meta.subscribe(, mH.error, mH.complete);
+            action.meta.subscribe(
+                (val) => { mH.next([val[0], val[1]]) },
+                (err) => { mH.error(err) },
+                () => { mH.complete() }
+            );
+
+            // set the found user
+            let foundUser: any = undefined;
+
             action.package.subscribe(
-                value => {
+                (value) => {
+                    foundUser = value[1];
+                },
+                (err) => { pH.error(err) },
+                () => {
+
                     // check that a user is found
-                    if (value[1] !== undefined && value[1].id) {
+                    if (foundUser !== undefined) {
                         // send signed token back
-                        pH.next([0, jwt.sign(value[0].id, this.encode)]);
+                        pH.next([0, jwt.sign(foundUser.id, this.encode)]);
+                        pH.complete()
                     } else {
                         pH.error(proposals.Auth.Flag.Error.NO_USER_FOUND);
                     }
-                }, pH.error, pH.complete);
+                }
+            );
         });
     }
     /**
@@ -277,7 +293,7 @@ export class AuthToken implements proposals.Auth.Proposal {
                 package: Observable.pairs(opPackage)
             };
 
-            let action = this.ms.act('db', 'delete', request);
+            let action = this.ms.act('db', 'delete', innerRequest);
             action.meta.subscribe(mH.next, mH.error, mH.complete);
             action.package.subscribe(pH.next, pH.error, pH.complete);
         });

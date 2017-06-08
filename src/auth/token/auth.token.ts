@@ -2,7 +2,7 @@ import { ServiceRegistry, ShortenAct, proposals } from '@ords/core';
 import * as jwt from 'jsonwebtoken';
 import { Observable } from 'rxjs';
 
-export class AuthToken implements proposals.Auth.Proposal {
+export class Auth implements proposals.Auth.Proposal {
     /**
      * Reference to the ms instance
      */

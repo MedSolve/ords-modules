@@ -1,5 +1,5 @@
 import { ServiceRegistry, ShortenAct, proposals } from '@ords/core';
-import { connectors } from '../';
+import { connectors } from '../../';
 import { Observable } from 'rxjs';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
@@ -23,8 +23,8 @@ export class MapExpress {
 
         // create router on instance should it map differently
         connector.maps.push(express.Router().use(this.validate.bind(this)));
-        connector.maps.push(express.Router().post('/auth/signin/', bodyParser.json(), this.signIn.bind(this)));
-        connector.maps.push(express.Router().post('/auth/signup/', bodyParser.json(), this.signUp.bind(this)));
+        connector.maps.push(express.Router().post('/auth/signin/', bodyParser.urlencoded({ extended: true }), bodyParser.json(), this.signIn.bind(this)));
+        connector.maps.push(express.Router().post('/auth/signup/', bodyParser.urlencoded({ extended: true }), bodyParser.json(), this.signUp.bind(this)));
         connector.maps.push(express.Router().get('/auth/signout/', this.signOut.bind(this)));
         connector.maps.push(express.Router().get('/auth/remove/', this.remove.bind(this)));
         connector.maps.push(express.Router().get('/auth/patch/', this.patch.bind(this)));

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { Auth } from './auth.token';
+import { AuthToken } from './auth.token';
 
 describe('AuthToken', function () {
     it('no services should be present', function () {

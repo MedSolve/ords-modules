@@ -1,5 +1,6 @@
 import { ServiceRegistry, proposals } from '@ords/core';
 import { Md5 } from 'ts-md5/dist/md5';
+import { Observable, Observer } from 'rxjs';
 
 let root = 'auth';
 
@@ -13,8 +14,11 @@ export class RequireCredentials {
     // signup and patch validate that password is present
     private signUp(request: proposals.Main.Types.Request): void {
 
+        // the username reference
+        let theUsername: string = undefined;
+
         // perform md5 mapping
-        request.package.subscribe((val: [string, any]) => {
+        request.package.map((val: [string, any]) => {
 
             // check if meta is being passed
             if (val[0] == 'meta') {
@@ -28,8 +32,19 @@ export class RequireCredentials {
                 // check username is set
                 if (val[1].username === undefined) {
                     throw new Error(requireCredentialsErros.MISSING_USERNAME);
+                } else if (theUsername === undefined) {
+                    theUsername = val[1].username;
+
+                    request.package.concat(Observable.create((handler: Observer<[string, string]>) => {
+
+                        // send the username and complete
+                        handler.next(['username', theUsername]);
+                        handler.complete();
+                    }));
                 }
             }
+
+            return val
         });
     };
     private signIn(request: proposals.Main.Types.Request): void {

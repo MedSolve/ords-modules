@@ -8,6 +8,7 @@ This module exists on npm. To use it run:
 
 ```
 npm install @ords/modules --save
+install install npm:@ords/modules --save
 ```
 
 # Contents of the module

@@ -15,7 +15,8 @@ export class RequireCredentials {
     private signUp(request: proposals.Main.Types.Request): void {
 
         // the username reference
-        let theUsername: string = undefined;
+        let userFound: boolean = false;
+        let existing: any = {};
 
         // perform md5 mapping
         request.package.map((val: [string, any]) => {
@@ -32,16 +33,19 @@ export class RequireCredentials {
                 // check username is set
                 if (val[1].username === undefined) {
                     throw new Error(requireCredentialsErros.MISSING_USERNAME);
-                } else if (theUsername === undefined) {
-                    theUsername = val[1].username;
+                } else if (userFound === undefined) {
+                    existing.username = val[1];
+                    userFound = true
 
                     request.package.concat(Observable.create((handler: Observer<[string, string]>) => {
 
                         // send the username and complete
-                        handler.next(['username', theUsername]);
+                        handler.next(['existing', existing]);
                         handler.complete();
                     }));
                 }
+            } else if (val[0] === 'existing') {
+                existing = val[1];
             }
 
             return val

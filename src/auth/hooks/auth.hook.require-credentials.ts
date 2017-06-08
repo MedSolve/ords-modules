@@ -5,6 +5,7 @@ let root = 'auth';
 
 export namespace requireCredentialsErros {
     export const MISSING_PASSWORD = 'password is missing';
+    export const MISSING_USERNAME = 'username is missing';
 }
 
 export class RequireCredentials {
@@ -23,10 +24,12 @@ export class RequireCredentials {
 
                     throw new Error(requireCredentialsErros.MISSING_PASSWORD);
                 }
-            }
 
-            // return updated value
-            return val;
+                // check username is set
+                if (val[1].username === undefined) {
+                    throw new Error(requireCredentialsErros.MISSING_USERNAME);
+                }
+            }
         });
     };
     private signIn(request: proposals.Main.Types.Request): void {
@@ -34,19 +37,32 @@ export class RequireCredentials {
         // flag for passoword has been found
         let passwordFound = false;
 
+        // flag for username has been found
+        let usernameFound = false;
+
         // perform md5 mapping for signin
         request.package.subscribe((val: [string, any]) => {
 
-            // check if meta is being passed
+            // check if password is being passed
             if (val[0] == 'password') {
 
                 passwordFound = true;
+            }
+
+            // check if username is being passed
+            if (val[0] == 'username') {
+
+                usernameFound = true;
             }
 
         }, () => { }, () => {
 
             if (passwordFound === false) {
                 throw new Error(requireCredentialsErros.MISSING_PASSWORD)
+            }
+
+            if (usernameFound === false) {
+                throw new Error(requireCredentialsErros.MISSING_USERNAME)
             }
         });
     };

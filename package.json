@@ -9,6 +9,7 @@
     "clean": "./scripts/cleanBuild.sh",
     "build-depoly": "tsc",
     "postinstall": "typings install",
+    "prepublish": "tsc",
     "build-env": "npm install && typings install"
   },
   "repository": {

@@ -10,6 +10,9 @@ This module exists on npm. To use it run:
 npm install @ords/modules --save
 ```
 
+# Contents of the module
+This contains mutliple modules for each proposal set by ORDS, this also include example maps!
+
 # Global dependencies
 - nodejs
 - typescript

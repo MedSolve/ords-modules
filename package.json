@@ -1,7 +1,7 @@
 {
   "name": "@ords/modules",
-  "version": "0.10.0",
-  "description": "Modules for ords-core microservices",
+  "version": "0.11.0",
+  "description": "Modules for ords-core microservices based upon proposals",
   "main": "dist/index",
   "typings": "dist/index",
   "scripts": {
@@ -23,6 +23,7 @@
   "license": "MIT",
   "dependencies": {
     "@ords/core": "*",
+    "body-parser": "^1.17.2",
     "express": "^4.15.2",
     "jsonwebtoken": "^7.4.1",
     "mongodb": "^2.2.26",

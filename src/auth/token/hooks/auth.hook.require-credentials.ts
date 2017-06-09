@@ -1,6 +1,7 @@
 import { ServiceRegistry, proposals } from '@ords/core';
 import { Md5 } from 'ts-md5/dist/md5';
 import { Observable, Observer } from 'rxjs';
+import * as EventEmitter from 'events';
 
 let root = 'auth';
 
@@ -12,46 +13,68 @@ export namespace requireCredentialsErros {
 export class RequireCredentials {
 
     // signup and patch validate that password is present
-    private signUp(request: proposals.Main.Types.Request): void {
+    private signUp(request: proposals.Main.Types.Request): proposals.Main.Types.Request {
 
-        // the username reference
-        let userFound: boolean = false;
-        let existing: any = {};
+        // tmp holder for pre this hook results from request so far
+        let tmp: any = {};
 
-        // perform md5 mapping
-        request.package.map((val: [string, any]) => {
+        // tmp holder handler to the observer that is gonna be extended
+        let handler: Observer<[string, any]> = undefined;
 
-            // check if meta is being passed
-            if (val[0] == 'meta') {
+        // flag to indicate how many things are done
+        let isDone = 0;
 
-                // check if password is set
-                if (val[1].password === undefined) {
+        // function that perform the next once something is done in this function
+        let next = () => {
 
-                    throw new Error(requireCredentialsErros.MISSING_PASSWORD);
+            // count one more thing done
+            isDone += 1;
+
+            // check if suffcient amount of thigns are done
+            if (isDone === 2) {
+
+                if (tmp.existing === undefined) {
+                    tmp.existing = {};
                 }
+                tmp.existing.username = tmp.meta.username;
 
-                // check username is set
-                if (val[1].username === undefined) {
-                    throw new Error(requireCredentialsErros.MISSING_USERNAME);
-                } else if (userFound === undefined) {
-                    existing.username = val[1];
-                    userFound = true
-
-                    request.package.concat(Observable.create((handler: Observer<[string, string]>) => {
-
-                        // send the username and complete
-                        handler.next(['existing', existing]);
-                        handler.complete();
-                    }));
-                }
-            } else if (val[0] === 'existing') {
-                existing = val[1];
+                // send next results
+                handler.next(['existing', tmp.existing]);
+                handler.complete();
             }
+        }
 
-            return val
-        });
+        // check that username and password is provided
+        request.package.subscribe(
+            (x) => {
+                tmp[x[0]] = x[1];
+            },
+            () => { },
+            () => {
+
+                if (tmp.meta.password === undefined) {
+                    throw new Error(requireCredentialsErros.MISSING_PASSWORD)
+                }
+
+                if (tmp.meta.username === false) {
+                    throw new Error(requireCredentialsErros.MISSING_USERNAME)
+                }
+
+                // send found existing query to be emittet
+                next();
+            });
+
+        // now map the 'existing' field to contain correct values
+        request.package = request.package.concat(Observable.create((h: Observer<[string, any]>) => {
+
+            // set reference for handler
+            handler = h;
+            next();
+        }));
+
+        return request;
     };
-    private signIn(request: proposals.Main.Types.Request): void {
+    private signIn(request: proposals.Main.Types.Request): proposals.Main.Types.Request {
 
         // flag for passoword has been found
         let passwordFound = false;
@@ -84,6 +107,8 @@ export class RequireCredentials {
                 throw new Error(requireCredentialsErros.MISSING_USERNAME)
             }
         });
+
+        return request;
     };
     constructor(msr: ServiceRegistry) {
 

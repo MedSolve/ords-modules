@@ -6,10 +6,10 @@ let root = 'auth';
 export class MD5Pass {
 
     // signup and patch validate that password is present
-    private signUp(request: proposals.Main.Types.Request): void {
+    private signUp(request: proposals.Main.Types.Request): proposals.Main.Types.Request {
 
         // perform md5 mapping
-        request.package.map((val: [string, any]) => {
+        request.package = request.package.map((val: [string, any]) => {
 
             // check if meta is being passed
             if (val[0] == 'meta') {
@@ -25,11 +25,13 @@ export class MD5Pass {
             // return updated value
             return val;
         });
+
+        return request;
     };
-    private signIn(request: proposals.Main.Types.Request): void {
+    private signIn(request: proposals.Main.Types.Request): proposals.Main.Types.Request {
 
         // perform md5 mapping for signin
-        request.package.map((val: [string, any]) => {
+        request.package = request.package.map((val: [string, any]) => {
 
             // check if meta is being passed
             if (val[0] == 'password') {
@@ -41,6 +43,8 @@ export class MD5Pass {
             // return updated value
             return val;
         });
+
+        return request;
     };
     constructor(msr: ServiceRegistry) {
 

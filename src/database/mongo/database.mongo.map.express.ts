@@ -78,7 +78,7 @@ export class MapExpressDatabaseRest {
             package: Observable.pairs(requestPackage),
             auth: req.auth
         };
-
+        
         // perform the action
         ShortenAct.tryCatch(this.msever, this.root, name, request, (err: Error, out: any, meta: any) => {
 

@@ -1,1 +1,1 @@
-export * from './database.mongo';
+import *  as mongo from './mongo'; export { mongo }

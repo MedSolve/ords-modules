@@ -281,6 +281,8 @@ export class DatabaseMongo implements proposals.Database.Proposal {
             // send back errors and perform action
         }, pH.error, () => {
 
+           console.log(op);
+
             // replace object id in query
             if (op.query.id) {
                 op.query._id = new Mongo.ObjectID(op.query.id);

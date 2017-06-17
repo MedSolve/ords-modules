@@ -8,8 +8,13 @@ let root = 'db';
 /**
  * FOllows structure of proposals protectHookLib would be other lib functions
  */
-export namespace ProtectHookProposal {
-
+export namespace protectHookProposal {
+    export namespace flag {
+        export namespace error {
+            export type UNDEFINED_SCHEMA = 'UNDEFINED_SCHEMA';
+            export type NEED_LOGIN = 'NEED_LOGIN';
+        }
+    }
     export namespace types {
         export interface authRule extends Function {
             (request: proposals.main.types._BaseRequest<
@@ -25,12 +30,12 @@ export namespace ProtectHookProposal {
 
 export class Protect {
     private schema: { [key: string]: schemaLib.SchemaValidation } = {};
-    private authRule: { [key: string]: ProtectHookProposal.types.authRule } = {};
+    private authRule: { [key: string]: protectHookProposal.types.authRule } = {};
     public setSchema(key: string, schema: schemaLib.SchemaValidation) {
         // bind schema
         this.schema[key] = schema;
     }
-    public setAuthRule(key: string, rule: ProtectHookProposal.types.authRule) {
+    public setAuthRule(key: string, rule: protectHookProposal.types.authRule) {
         // bind schema
         this.authRule[key] = rule;
     }
@@ -81,7 +86,7 @@ export class Protect {
             if (innerRequest.package.runValidations && innerRequest.package.resource in this.schema) {
                 handle.complete();
             } else if (innerRequest.package.runValidations) {
-                handle.error(new Error('SCHEMA UNDEFINED'));
+                handle.error(new Error('UNDEFINED_SCHEMA'));
             } else {
                 handle.complete();
             }
@@ -123,6 +128,14 @@ export class Protect {
             // check validation to run and run it
             if (innerRequest.package.runValidations && innerRequest.package.resource in this.authRule) {
                 this.authRule[innerRequest.package.resource](innerRequest, handle);
+
+                // if auth needs to be validated
+            } else if (innerRequest.package.runValidations) {
+
+                // if no auth is defined
+                if (!request.auth) {
+                    handle.error(new Error('NEED_LOGIN'));
+                }
             } else {
                 handle.complete();
             }
@@ -152,39 +165,39 @@ export class Protect {
             return value;
         }).concat(Observable.create((handle: Observer<[string, any]>) => {
 
-                // create new inner request
-                let innerRequest: any = Object.assign({}, request);
+            // create new inner request
+            let innerRequest: any = Object.assign({}, request);
 
-                // add reference to old package
-                innerRequest.package = tempPackage;
+            // add reference to old package
+            innerRequest.package = tempPackage;
 
-                // check validation to run and run it
-                if (innerRequest.package.runValidations && innerRequest.package.resource in this.schema) {
+            // check validation to run and run it
+            if (innerRequest.package.runValidations && innerRequest.package.resource in this.schema) {
 
-                    try {
-                        handle.next(['data', this.schema[innerRequest.package.resource].validate(innerRequest.package.data, true)]);
-                        handle.complete();
-                    } catch (e) {
-
-                        // check if object error
-                        if (Object.keys(e).length !== 0) {
-                            // array of total erros
-                            let totalErr: Array<any> = [];
-                            for (let err of Object.keys(e)) {
-
-                                totalErr.push(err + ': ' + e[err].toString());
-                            }
-                            handle.error(new Error(totalErr.join(',')));
-                        } else {
-                            handle.error(e);
-                        }
-                    }
-                } else if (innerRequest.package.runValidations) {
-                    handle.error(new Error('SCHEMA UNDEFINED'));
-                } else {
+                try {
+                    handle.next(['data', this.schema[innerRequest.package.resource].validate(innerRequest.package.data, true)]);
                     handle.complete();
+                } catch (e) {
+
+                    // check if object error
+                    if (Object.keys(e).length !== 0) {
+                        // array of total erros
+                        let totalErr: Array<any> = [];
+                        for (let err of Object.keys(e)) {
+
+                            totalErr.push(err + ': ' + e[err].toString());
+                        }
+                        handle.error(new Error(totalErr.join(',')));
+                    } else {
+                        handle.error(e);
+                    }
                 }
-            }));
+            } else if (innerRequest.package.runValidations) {
+                handle.error(new Error('SCHEMA UNDEFINED'));
+            } else {
+                handle.complete();
+            }
+        }));
 
         return request;
     };

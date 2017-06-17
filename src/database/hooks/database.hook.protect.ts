@@ -1,25 +1,45 @@
 import { ServiceRegistry, proposals } from '@ords/core';
-import { lib } from '@ords/obj-schema';
+import { lib as schemaLib } from '@ords/obj-schema';
+import { Observer, Observable } from 'rxjs';
 
 // root for commands bound to
 let root = 'db';
 
+export namespace lib {
+
+    export namespace types {
+        export interface authRule extends Function {
+            (request: proposals.Main.Types._baseRequest<
+                proposals.Database.Packages.Create |
+                proposals.Database.Packages.Read |
+                proposals.Database.Packages.Update |
+                proposals.Database.Packages.Delete |
+                proposals.Database.Packages.Patch>,
+                observable: Observer<[string, any]>): void
+        }
+    }
+}
+
 export class Protect {
-    private schema: { [key: string]: lib.SchemaValidation }
-    private authRule: { [key: string]: Function }
-    public setScema(key: string, schema: lib.SchemaValidation) {
+    private schema: { [key: string]: schemaLib.SchemaValidation }
+    private authRule: { [key: string]: lib.types.authRule }
+    public setScema(key: string, schema: schemaLib.SchemaValidation) {
         // bind schema
         this.schema[key] = schema;
     }
-    public setAuthRule(key: string, rule: Function) {
+    public setAuthRule(key: string, rule: lib.types.authRule) {
         // bind schema
         this.authRule[key] = rule;
     }
+    /**
+     * Create and bind hooks to msr
+     * @param msr   reference to microservice registry
+     * @param hooks hooks that needs to be enabled within this
+     */
     constructor(msr: ServiceRegistry) {
 
-        // bind hooks
-        msr.addPreHook(root, 'path', this.checkFollowSchema.bind(this));
-        msr.addPreHook(root, '/create/update/g', this.checkFollowSchema.bind(this));
+        msr.addPreHook(root, '/create/update/g', this.checkFollowSchemaSrict.bind(this));
+        msr.addPreHook(root, 'patch', this.checkFollowSchema.bind(this));
         msr.addPreHook(root, '*', this.checkAuthRule.bind(this));
 
     }
@@ -29,20 +49,37 @@ export class Protect {
      */
     private checkAuthRule(request: proposals.Main.Types.Request): proposals.Main.Types.Request {
 
-        // read a flag to see if validation needs to be performed
+        // reference to total package
+        let tempPackage: proposals.Database.Packages.Create |
+            proposals.Database.Packages.Read |
+            proposals.Database.Packages.Update |
+            proposals.Database.Packages.Delete |
+            proposals.Database.Packages.Patch = {
+                query: undefined,
+                resource: undefined
+            };
 
-        // check resource
-        request.package.subscribe((val: [string, any]) => {
+        // perform new package handling
+        request.package = request.package.map((value) => {
 
-            // check if resource information is provided
-            if (val[0] === 'resource') {
+            tempPackage[value[0]] = value[1];
 
-                // then do validation if exists
-                if (val[1] in this.authRule) {
-                    this.authRule[val[1]]('DATA GOES HERE and a request package should propably be returned');
-                }
+            return value;
+        }).concat(Observable.create((handle: Observer<[string, any]>) => {
+
+            // create new inner request
+            let innerRequest: any = Object.assign({}, request);
+
+            // add reference to old package
+            innerRequest.package = innerRequest;
+
+            // check validation to run and run it
+            if (innerRequest.package.runValidations && innerRequest.package.resource in this.authRule) {
+                this.authRule[innerRequest.package.resource](innerRequest, handle);
+            } else {
+                handle.complete();
             }
-        });
+        }));
 
         return request;
     };
@@ -52,25 +89,40 @@ export class Protect {
      */
     private checkFollowSchemaSrict(request: proposals.Main.Types.Request): proposals.Main.Types.Request {
 
-        // read a flag to see if validation needs to be performed
+        // reference to total package
+        let tempPackage: proposals.Database.Packages.Create |
+            proposals.Database.Packages.Read |
+            proposals.Database.Packages.Update |
+            proposals.Database.Packages.Delete |
+            proposals.Database.Packages.Patch = {
+                query: undefined,
+                resource: undefined
+            };
 
-        // check resource
-        request.package.subscribe((val: [string, any]) => {
+        // perform new package handling
+        request.package = request.package.map((value) => {
 
-            // check if resource information is provided
-            if (val[0] === 'resource') {
+            tempPackage[value[0]] = value[1];
 
-                // then do validation if exists
-                if (val[1] in this.schema) {
+            return value;
+        }).concat(Observable.create((handle: Observer<[string, any]>) => {
 
-                    // perform validation
-                    this.schema[val[1]].validate(, true);
-                } else {
+            // create new inner request
+            let innerRequest: any = Object.assign({}, request);
 
-                    throw new Error('Resource is not implemented');
-                }
+            // add reference to old package
+            innerRequest.package = innerRequest;
+
+            // check validation to run and run it
+            if (innerRequest.package.runValidations && innerRequest.package.resource in this.schema) {
+                this.schema[innerRequest.package.resource].validate(innerRequest.package.data, true);
+            } else if (innerRequest.package.runValidations) {
+                handle.error(new Error('SCHEMA UNDEFINED'));
+                handle.complete();
+            } else {
+                handle.complete();
             }
-        });
+        }));
 
         return request;
     };
@@ -80,25 +132,40 @@ export class Protect {
     */
     private checkFollowSchema(request: proposals.Main.Types.Request): proposals.Main.Types.Request {
 
-        // read a flag to see if validation needs to be performed
+        // reference to total package
+        let tempPackage: proposals.Database.Packages.Create |
+            proposals.Database.Packages.Read |
+            proposals.Database.Packages.Update |
+            proposals.Database.Packages.Delete |
+            proposals.Database.Packages.Patch = {
+                query: undefined,
+                resource: undefined
+            };
 
-        // check resource
-        request.package.subscribe((val: [string, any]) => {
+        // perform new package handling
+        request.package = request.package.map((value) => {
 
-            // check if resource information is provided
-            if (val[0] === 'resource') {
+            tempPackage[value[0]] = value[1];
 
-                // then do validation if exists
-                if (val[1] in this.schema) {
+            return value;
+        }).concat(Observable.create((handle: Observer<[string, any]>) => {
 
-                    // perform validation
-                    this.schema[val[1]].validate(, false);
-                } else {
+            // create new inner request
+            let innerRequest: any = Object.assign({}, request);
 
-                    throw new Error('Resource is not implemented');
-                }
+            // add reference to old package
+            innerRequest.package = innerRequest;
+
+            // check validation to run and run it
+            if (innerRequest.package.runValidations && innerRequest.package.resource in this.schema) {
+                this.schema[innerRequest.package.resource].validate(innerRequest.package.data, false);
+            } else if (innerRequest.package.runValidations) {
+                handle.error(new Error('SCHEMA UNDEFINED'));
+                handle.complete();
+            } else {
+                handle.complete();
             }
-        });
+        }));
 
         return request;
     };

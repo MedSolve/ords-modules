@@ -46,6 +46,7 @@ export class MapExpressDatabaseRest {
         // create package
         let requestPackage: any = {
             query: req.query,
+            runValidations: true,
             resource: req.params.resource
         }
 

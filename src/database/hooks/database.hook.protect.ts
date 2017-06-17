@@ -25,12 +25,12 @@ export namespace ProtectHookProposal {
 
 export class Protect {
     private schema: { [key: string]: schemaLib.SchemaValidation }
-    private authRule: { [key: string]: lib.types.authRule }
+    private authRule: { [key: string]: ProtectHookProposal.types.authRule }
     public setScema(key: string, schema: schemaLib.SchemaValidation) {
         // bind schema
         this.schema[key] = schema;
     }
-    public setAuthRule(key: string, rule: lib.types.authRule) {
+    public setAuthRule(key: string, rule: ProtectHookProposal.types.authRule) {
         // bind schema
         this.authRule[key] = rule;
     }

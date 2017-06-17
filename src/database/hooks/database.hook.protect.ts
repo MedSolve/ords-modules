@@ -5,7 +5,10 @@ import { Observer, Observable } from 'rxjs';
 // root for commands bound to
 let root = 'db';
 
-export namespace lib {
+/**
+ * FOllows structure of proposals protectHookLib would be other lib functions
+ */
+export namespace ProtectHookProposal {
 
     export namespace types {
         export interface authRule extends Function {

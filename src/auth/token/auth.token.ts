@@ -2,7 +2,7 @@ import { ServiceRegistry, ShortenAct, proposals } from '@ords/core';
 import * as jwt from 'jsonwebtoken';
 import { Observable } from 'rxjs';
 
-export class AuthToken implements proposals.Auth.Proposal {
+export class AuthToken implements proposals.auth.Proposal {
     /**
      * Reference to the ms instance
      */
@@ -42,16 +42,16 @@ export class AuthToken implements proposals.Auth.Proposal {
     /**
      * Sign up a user
      */
-    public signUp(request: proposals.Main.Types.Request, mH: proposals.Main.Types.PairObserver, pH: proposals.Main.Types.PairObserver) {
+    public signUp(request: proposals.main.types.Request, mH: proposals.main.types.PairObserver, pH: proposals.main.types.PairObserver) {
 
         // set meta complete
-        mH.next([proposals.Main.Flag.FLAGSEND, proposals.Main.Flag.DataType.RAW])
+        mH.next([proposals.main.flag.FLAGSEND, proposals.main.flag.dataType.RAW])
         mH.complete();
 
         /**
          * The package to be used in operation
          */
-        let opPackage: proposals.Database.Packages.Create = {
+        let opPackage: proposals.database.Packages.Create = {
             resource: this.resource,
             data: {},
             query: {}
@@ -60,7 +60,7 @@ export class AuthToken implements proposals.Auth.Proposal {
         /**
          * Package recived in request
          */
-        let recived: proposals.Auth.Packages.SignUp = {
+        let recived: proposals.auth.packages.SignUp = {
             existing: {},
             meta: {}
         }
@@ -89,7 +89,7 @@ export class AuthToken implements proposals.Auth.Proposal {
                 opPackage.query = recived.existing;
 
                 // requret request
-                let innerRequest: proposals.Main.Types.Request = {
+                let innerRequest: proposals.main.types.Request = {
                     auth: request.auth,
                     package: Observable.pairs(opPackage)
                 };
@@ -101,7 +101,7 @@ export class AuthToken implements proposals.Auth.Proposal {
                     if (err) {
                         return pH.error(err);
                     } else if (user == 0) {
-                        return pH.error(proposals.Auth.Flag.Error.USER_EXISTS)
+                        return pH.error(proposals.auth.flag.error.USER_EXISTS)
                     } else {
                         pH.next([0, user]);
                         pH.complete();
@@ -113,16 +113,16 @@ export class AuthToken implements proposals.Auth.Proposal {
     /**
      * Patch the user with new information
      */
-    public patch(request: proposals.Main.Types.Request, mH: proposals.Main.Types.PairObserver, pH: proposals.Main.Types.PairObserver) {
+    public patch(request: proposals.main.types.Request, mH: proposals.main.types.PairObserver, pH: proposals.main.types.PairObserver) {
 
         // set meta complete
-        mH.next([proposals.Main.Flag.FLAGSEND, proposals.Main.Flag.DataType.RAW])
+        mH.next([proposals.main.flag.FLAGSEND, proposals.main.flag.dataType.RAW])
         mH.complete();
 
         /**
          * The packete to be used in operation
          */
-        let opPackage: proposals.Database.Packages.Patch = {
+        let opPackage: proposals.database.Packages.Patch = {
             resource: this.resource,
             data: {},
             query: {}
@@ -131,7 +131,7 @@ export class AuthToken implements proposals.Auth.Proposal {
         /**
          * Package recived in request
          */
-        let recived: proposals.Auth.Packages.Patch = {
+        let recived: proposals.auth.packages.Patch = {
             user: null,
             meta: {}
         }
@@ -160,7 +160,7 @@ export class AuthToken implements proposals.Auth.Proposal {
                 opPackage.query = { id: recived.user };
 
                 // requret request
-                let innerRequest: proposals.Main.Types.Request = {
+                let innerRequest: proposals.main.types.Request = {
                     auth: request.auth,
                     package: Observable.pairs(opPackage)
                 };
@@ -171,7 +171,7 @@ export class AuthToken implements proposals.Auth.Proposal {
                     if (err) {
                         return pH.error(err);
                     } else if (user == 0) {
-                        return pH.error(proposals.Auth.Flag.Error.USER_EXISTS)
+                        return pH.error(proposals.auth.flag.error.USER_EXISTS)
                     } else {
                         pH.next([0, user]);
                         pH.complete();
@@ -183,10 +183,10 @@ export class AuthToken implements proposals.Auth.Proposal {
     /**
      * Validate a user session
      */
-    public validate(request: proposals.Main.Types.Request, mH: proposals.Main.Types.PairObserver, pH: proposals.Main.Types.PairObserver) {
+    public validate(request: proposals.main.types.Request, mH: proposals.main.types.PairObserver, pH: proposals.main.types.PairObserver) {
 
         // set meta complete
-        mH.next([proposals.Main.Flag.FLAGSEND, proposals.Main.Flag.DataType.RAW])
+        mH.next([proposals.main.flag.FLAGSEND, proposals.main.flag.dataType.RAW])
         mH.complete();
 
         /**
@@ -208,7 +208,7 @@ export class AuthToken implements proposals.Auth.Proposal {
 
                 // if error then send it back that auth information was invalid
                 if (err) {
-                    pH.error(new Error(proposals.Auth.Flag.Error.NO_VALID_AUTH))
+                    pH.error(new Error(proposals.auth.flag.error.NO_VALID_AUTH))
                 } else {
                     pH.next([0, decoded]);
                     pH.complete();
@@ -219,16 +219,16 @@ export class AuthToken implements proposals.Auth.Proposal {
     /**
      * Sign up a user
      */
-    public signIn(request: proposals.Main.Types.Request, mH: proposals.Main.Types.PairObserver, pH: proposals.Main.Types.PairObserver) {
+    public signIn(request: proposals.main.types.Request, mH: proposals.main.types.PairObserver, pH: proposals.main.types.PairObserver) {
 
         // set meta complete
-        mH.next([proposals.Main.Flag.FLAGSEND, proposals.Main.Flag.DataType.RAW])
+        mH.next([proposals.main.flag.FLAGSEND, proposals.main.flag.dataType.RAW])
         mH.complete();
 
         /**
          * The packete to be used in operation
          */
-        let opPackage: proposals.Database.Packages.Read = {
+        let opPackage: proposals.database.Packages.Read = {
             resource: this.resource,
             query: {}
         };
@@ -246,7 +246,7 @@ export class AuthToken implements proposals.Auth.Proposal {
             opPackage.limit = 1;
 
             // requret request
-            let innerRequest: proposals.Main.Types.Request = {
+            let innerRequest: proposals.main.types.Request = {
                 auth: request.auth, // would probably be undefined
                 package: Observable.pairs(opPackage)
             };
@@ -257,7 +257,7 @@ export class AuthToken implements proposals.Auth.Proposal {
                 if (err) {
                     return pH.error(err);
                 } else if (user[0] === undefined) {
-                    return pH.error(proposals.Auth.Flag.Error.NO_USER_FOUND)
+                    return pH.error(proposals.auth.flag.error.NO_USER_FOUND)
                 } else {
                     pH.next([0, jwt.sign(user[0].id, this.encode)]);
                     pH.complete();
@@ -268,10 +268,10 @@ export class AuthToken implements proposals.Auth.Proposal {
     /**
      * Sign out a user account
      */
-    public signOut(request: proposals.Main.Types.Request, mH: proposals.Main.Types.PairObserver, pH: proposals.Main.Types.PairObserver) {
+    public signOut(request: proposals.main.types.Request, mH: proposals.main.types.PairObserver, pH: proposals.main.types.PairObserver) {
 
         // send operation flag back 
-        mH.next([proposals.Main.Flag.FLAGSEND, proposals.Main.Flag.DataType.RAW])
+        mH.next([proposals.main.flag.FLAGSEND, proposals.main.flag.dataType.RAW])
         mH.complete();
 
         // using JWT so signout not really needed
@@ -281,16 +281,16 @@ export class AuthToken implements proposals.Auth.Proposal {
     /**
      * Sign up a user
      */
-    public remove(request: proposals.Main.Types.Request, mH: proposals.Main.Types.PairObserver, pH: proposals.Main.Types.PairObserver) {
+    public remove(request: proposals.main.types.Request, mH: proposals.main.types.PairObserver, pH: proposals.main.types.PairObserver) {
 
         // set meta complete
-        mH.next([proposals.Main.Flag.FLAGSEND, proposals.Main.Flag.DataType.RAW])
+        mH.next([proposals.main.flag.FLAGSEND, proposals.main.flag.dataType.RAW])
         mH.complete();
 
         /**
          * The packete to be used in operation
          */
-        let opPackage: proposals.Database.Packages.Delete = {
+        let opPackage: proposals.database.Packages.Delete = {
             resource: this.resource,
             query: { id: null }
         };
@@ -305,7 +305,7 @@ export class AuthToken implements proposals.Auth.Proposal {
         }, pH.error, () => {
 
             // requret request
-            let innerRequest: proposals.Main.Types.Request = {
+            let innerRequest: proposals.main.types.Request = {
                 auth: request.auth,
                 package: Observable.pairs(opPackage)
             };
@@ -316,7 +316,7 @@ export class AuthToken implements proposals.Auth.Proposal {
                 if (err) {
                     return pH.error(err);
                 } else if (user == false) {
-                    return pH.error(proposals.Auth.Flag.Error.NO_USER_FOUND)
+                    return pH.error(proposals.auth.flag.error.NO_USER_FOUND)
                 } else {
                     pH.next([0, user]);
                     pH.complete();

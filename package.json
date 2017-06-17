@@ -1,6 +1,6 @@
 {
   "name": "@ords/modules",
-  "version": "0.16.2",
+  "version": "0.16.3",
   "description": "Modules for ords-core microservices based upon proposals",
   "main": "dist/index",
   "typings": "dist/index",

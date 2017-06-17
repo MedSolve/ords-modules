@@ -5,18 +5,18 @@ import * as Mongo from 'mongodb';
  * MongoDB database connections 
  * Root: db
  */
-export class DatabaseMongo implements proposals.Database.Proposal {
+export class DatabaseMongo implements proposals.database.Proposal {
     /**
      * Database connection
      */
     private db: Mongo.Db
-    public create(request: proposals.Main.Types.Request, mH: proposals.Main.Types.PairObserver, pH: proposals.Main.Types.PairObserver) {
+    public create(request: proposals.main.types.Request, mH: proposals.main.types.PairObserver, pH: proposals.main.types.PairObserver) {
 
         // send operation flag back
-        mH.next([proposals.Main.Flag.FLAGSEND, proposals.Main.Flag.DataType.RAW])
+        mH.next([proposals.main.flag.FLAGSEND, proposals.main.flag.dataType.RAW])
         mH.complete();
 
-        let op: proposals.Database.Packages.Create = {
+        let op: proposals.database.Packages.Create = {
             resource: undefined,
             data: {},
             query: {}
@@ -74,13 +74,13 @@ export class DatabaseMongo implements proposals.Database.Proposal {
             }
         });
     }
-    public read(request: proposals.Main.Types.Request, mH: proposals.Main.Types.PairObserver, pH: proposals.Main.Types.PairObserver) {
+    public read(request: proposals.main.types.Request, mH: proposals.main.types.PairObserver, pH: proposals.main.types.PairObserver) {
 
         // send operation flag back
-        mH.next([proposals.Main.Flag.FLAGSEND, proposals.Main.Flag.DataType.MULTIPLE])
+        mH.next([proposals.main.flag.FLAGSEND, proposals.main.flag.dataType.MULTIPLE])
         mH.complete();
 
-        let op: proposals.Database.Packages.Read = {
+        let op: proposals.database.Packages.Read = {
             resource: '',
             query: {}
         };
@@ -178,13 +178,13 @@ export class DatabaseMongo implements proposals.Database.Proposal {
             }
         });
     }
-    public update(request: proposals.Main.Types.Request, mH: proposals.Main.Types.PairObserver, pH: proposals.Main.Types.PairObserver) {
+    public update(request: proposals.main.types.Request, mH: proposals.main.types.PairObserver, pH: proposals.main.types.PairObserver) {
 
         // send operation flag back
-        mH.next([proposals.Main.Flag.FLAGSEND, proposals.Main.Flag.DataType.RAW])
+        mH.next([proposals.main.flag.FLAGSEND, proposals.main.flag.dataType.RAW])
         mH.complete();
 
-        let op: proposals.Database.Packages.Patch = {
+        let op: proposals.database.Packages.Patch = {
             resource: '',
             data: {},
             query: {}
@@ -220,13 +220,13 @@ export class DatabaseMongo implements proposals.Database.Proposal {
         });
 
     }
-    public patch(request: proposals.Main.Types.Request, mH: proposals.Main.Types.PairObserver, pH: proposals.Main.Types.PairObserver) {
+    public patch(request: proposals.main.types.Request, mH: proposals.main.types.PairObserver, pH: proposals.main.types.PairObserver) {
 
         // send operation flag back
-        mH.next([proposals.Main.Flag.FLAGSEND, proposals.Main.Flag.DataType.RAW])
+        mH.next([proposals.main.flag.FLAGSEND, proposals.main.flag.dataType.RAW])
         mH.complete();
 
-        let op: proposals.Database.Packages.Patch = {
+        let op: proposals.database.Packages.Patch = {
             resource: '',
             data: {},
             query: {}
@@ -261,13 +261,13 @@ export class DatabaseMongo implements proposals.Database.Proposal {
             });
         });
     }
-    public delete(request: proposals.Main.Types.Request, mH: proposals.Main.Types.PairObserver, pH: proposals.Main.Types.PairObserver) {
+    public delete(request: proposals.main.types.Request, mH: proposals.main.types.PairObserver, pH: proposals.main.types.PairObserver) {
 
         // send operation flag back
-        mH.next([proposals.Main.Flag.FLAGSEND, proposals.Main.Flag.DataType.RAW])
+        mH.next([proposals.main.flag.FLAGSEND, proposals.main.flag.dataType.RAW])
         mH.complete();
 
-        let op: proposals.Database.Packages.Delete = {
+        let op: proposals.database.Packages.Delete = {
             resource: '',
             query: {}
         };

@@ -13,7 +13,7 @@ export namespace requireCredentialsErros {
 export class RequireCredentials {
 
     // signup and patch validate that password is present
-    private signUp(request: proposals.Main.Types.Request): proposals.Main.Types.Request {
+    private signUp(request: proposals.main.types.Request): proposals.main.types.Request {
 
         // tmp holder for pre this hook results from request so far
         let tmp: any = {};
@@ -74,7 +74,7 @@ export class RequireCredentials {
 
         return request;
     };
-    private signIn(request: proposals.Main.Types.Request): proposals.Main.Types.Request {
+    private signIn(request: proposals.main.types.Request): proposals.main.types.Request {
 
         // flag for passoword has been found
         let passwordFound = false;

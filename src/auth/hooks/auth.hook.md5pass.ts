@@ -6,7 +6,7 @@ let root = 'auth';
 export class MD5Pass {
 
     // signup and patch validate that password is present
-    private signUp(request: proposals.Main.Types.Request): proposals.Main.Types.Request {
+    private signUp(request: proposals.main.types.Request): proposals.main.types.Request {
 
         // perform md5 mapping
         request.package = request.package.map((val: [string, any]) => {
@@ -28,7 +28,7 @@ export class MD5Pass {
 
         return request;
     };
-    private signIn(request: proposals.Main.Types.Request): proposals.Main.Types.Request {
+    private signIn(request: proposals.main.types.Request): proposals.main.types.Request {
 
         // perform md5 mapping for signin
         request.package = request.package.map((val: [string, any]) => {

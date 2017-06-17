@@ -46,7 +46,7 @@ export class MapExpress {
         } else {
 
             // create an observable request
-            let request: proposals.Main.Types.Request = {
+            let request: proposals.main.types.Request = {
                 package: Observable.pairs(req.body.meta),
                 auth: req.auth
             };
@@ -89,7 +89,7 @@ export class MapExpress {
         } else {
 
             // create an observable request
-            let request: proposals.Main.Types.Request = {
+            let request: proposals.main.types.Request = {
                 package: Observable.pairs(req.body),
                 auth: req.auth
             };
@@ -130,7 +130,7 @@ export class MapExpress {
             var parts = req.headers.authorization.split(' ');
 
             // create an observable request
-            let request: proposals.Main.Types.Request = {
+            let request: proposals.main.types.Request = {
                 package: Observable.pairs({
                     session: parts[1]
                 }),
@@ -171,7 +171,7 @@ export class MapExpress {
     private remove(req: connectors.ConnectorExpressRequest, res: express.Response, next: express.NextFunction): void {
 
         // create an observable request
-        let request: proposals.Main.Types.Request = {
+        let request: proposals.main.types.Request = {
             package: Observable.pairs({
                 account: req.auth
             }),
@@ -214,7 +214,7 @@ export class MapExpress {
         } else {
 
             // create an observable request
-            let request: proposals.Main.Types.Request = {
+            let request: proposals.main.types.Request = {
                 package: Observable.pairs({
                     user: req.auth,
                     meta: req.body.meta
@@ -262,7 +262,7 @@ export class MapExpress {
             var parts = req.headers.authorization.split(' ');
 
             // create an observable request
-            let request: proposals.Main.Types.Request = {
+            let request: proposals.main.types.Request = {
                 package: Observable.pairs({
                     session: parts[1],
                 }),

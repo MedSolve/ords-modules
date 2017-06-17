@@ -75,7 +75,7 @@ export class MapExpressDatabaseRest {
         }
 
         // create an observable request
-        let request: proposals.Main.Types.Request = {
+        let request: proposals.main.types.Request = {
             package: Observable.pairs(requestPackage),
             auth: req.auth
         };

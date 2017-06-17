@@ -12,12 +12,12 @@ export namespace ProtectHookProposal {
 
     export namespace types {
         export interface authRule extends Function {
-            (request: proposals.Main.Types._baseRequest<
-                proposals.Database.Packages.Create |
-                proposals.Database.Packages.Read |
-                proposals.Database.Packages.Update |
-                proposals.Database.Packages.Delete |
-                proposals.Database.Packages.Patch>,
+            (request: proposals.main.types._BaseRequest<
+                proposals.database.Packages.Create |
+                proposals.database.Packages.Read |
+                proposals.database.Packages.Update |
+                proposals.database.Packages.Delete |
+                proposals.database.Packages.Patch>,
                 observable: Observer<[string, any]>): void
         }
     }
@@ -50,14 +50,14 @@ export class Protect {
      * Check that a given rule for a schema is followed
      * @param request
      */
-    private checkAuthRule(request: proposals.Main.Types.Request): proposals.Main.Types.Request {
+    private checkAuthRule(request: proposals.main.types.Request): proposals.main.types.Request {
 
         // reference to total package
-        let tempPackage: proposals.Database.Packages.Create |
-            proposals.Database.Packages.Read |
-            proposals.Database.Packages.Update |
-            proposals.Database.Packages.Delete |
-            proposals.Database.Packages.Patch = {
+        let tempPackage: proposals.database.Packages.Create |
+            proposals.database.Packages.Read |
+            proposals.database.Packages.Update |
+            proposals.database.Packages.Delete |
+            proposals.database.Packages.Patch = {
                 query: undefined,
                 resource: undefined
             };
@@ -90,14 +90,14 @@ export class Protect {
      * Check that data follows given schema scritly 
      * @param request
      */
-    private checkFollowSchemaSrict(request: proposals.Main.Types.Request): proposals.Main.Types.Request {
+    private checkFollowSchemaSrict(request: proposals.main.types.Request): proposals.main.types.Request {
 
         // reference to total package
-        let tempPackage: proposals.Database.Packages.Create |
-            proposals.Database.Packages.Read |
-            proposals.Database.Packages.Update |
-            proposals.Database.Packages.Delete |
-            proposals.Database.Packages.Patch = {
+        let tempPackage: proposals.database.Packages.Create |
+            proposals.database.Packages.Read |
+            proposals.database.Packages.Update |
+            proposals.database.Packages.Delete |
+            proposals.database.Packages.Patch = {
                 query: undefined,
                 resource: undefined
             };
@@ -133,14 +133,14 @@ export class Protect {
     * Check that data follows given schema non-strictly 
     * @param request
     */
-    private checkFollowSchema(request: proposals.Main.Types.Request): proposals.Main.Types.Request {
+    private checkFollowSchema(request: proposals.main.types.Request): proposals.main.types.Request {
 
         // reference to total package
-        let tempPackage: proposals.Database.Packages.Create |
-            proposals.Database.Packages.Read |
-            proposals.Database.Packages.Update |
-            proposals.Database.Packages.Delete |
-            proposals.Database.Packages.Patch = {
+        let tempPackage: proposals.database.Packages.Create |
+            proposals.database.Packages.Read |
+            proposals.database.Packages.Update |
+            proposals.database.Packages.Delete |
+            proposals.database.Packages.Patch = {
                 query: undefined,
                 resource: undefined
             };

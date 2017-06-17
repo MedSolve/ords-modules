@@ -41,7 +41,7 @@ export class Protect {
      */
     constructor(msr: ServiceRegistry) {
 
-        msr.addPreHook(root, '/create/update/g', this.checkFollowSchemaSrict.bind(this));
+        msr.addPreHook(root, '/create/update/g', this.checkFollowSchemaStrict.bind(this));
         msr.addPreHook(root, 'read', this.checkResourceExist.bind(this));
         msr.addPreHook(root, 'patch', this.checkFollowSchema.bind(this));
         msr.addPreHook(root, '*', this.checkAuthRule.bind(this));
@@ -82,7 +82,6 @@ export class Protect {
                 handle.complete();
             } else if (innerRequest.package.runValidations) {
                 handle.error(new Error('SCHEMA UNDEFINED'));
-                handle.complete();
             } else {
                 handle.complete();
             }
@@ -135,7 +134,7 @@ export class Protect {
      * Check that data follows given schema scritly 
      * @param request
      */
-    private checkFollowSchemaSrict(request: proposals.main.types.Request): proposals.main.types.Request {
+    private checkFollowSchemaStrict(request: proposals.main.types.Request): proposals.main.types.Request {
 
         // reference to total package
         let tempPackage: proposals.database.Packages.Create |
@@ -163,10 +162,27 @@ export class Protect {
 
             // check validation to run and run it
             if (innerRequest.package.runValidations && innerRequest.package.resource in this.schema) {
-                this.schema[innerRequest.package.resource].validate(innerRequest.package.data, true);
+       
+                try {
+                    handle.next(['data', this.schema[innerRequest.package.resource].validate(innerRequest.package.data, true)]); 
+                    handle.complete();
+                } catch (e) {
+
+                    // check if object error
+                    if (Object.keys(e).length !== 0) {
+                        // array of total erros
+                        let totalErr: Array<any> = [];
+                        for (let err of Object.keys(e)) {
+
+                            totalErr.push(err + ': ' + e[err].toString());
+                        }
+                        handle.error(new Error(totalErr.join(',')));
+                    } else {
+                        handle.error(e);
+                    }
+                }
             } else if (innerRequest.package.runValidations) {
                 handle.error(new Error('SCHEMA UNDEFINED'));
-                handle.complete();
             } else {
                 handle.complete();
             }
@@ -206,10 +222,25 @@ export class Protect {
 
             // check validation to run and run it
             if (innerRequest.package.runValidations && innerRequest.package.resource in this.schema) {
-                this.schema[innerRequest.package.resource].validate(innerRequest.package.data, false);
+                try {
+                    handle.next(['data', this.schema[innerRequest.package.resource].validate(innerRequest.package.data, false)]); 
+                    handle.complete();
+                } catch (e) {
+
+                    // check if object error
+                    if (Object.keys(e).length !== 0) {
+                        // array of total erros
+                        let totalErr: Array<any> = [];
+                        for (let err of Object.keys(e)) {
+                            totalErr.push(err + ': ' + e[err].toString());
+                        }
+                        handle.error(new Error(totalErr.join(',')));
+                    } else {
+                        handle.error(e);
+                    }
+                }
             } else if (innerRequest.package.runValidations) {
                 handle.error(new Error('SCHEMA UNDEFINED'));
-                handle.complete();
             } else {
                 handle.complete();
             }

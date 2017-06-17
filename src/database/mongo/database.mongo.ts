@@ -30,7 +30,7 @@ export class DatabaseMongo implements proposals.database.Proposal {
 
             // send back errors and perform action
         }, pH.error, () => {
-
+            
             // replace object id in data
             if (op.data.id) {
                 op.data.id = new Mongo.ObjectID(op.data.id);

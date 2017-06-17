@@ -146,6 +146,8 @@ export class Protect {
                 resource: undefined
             };
 
+        console.log("trying to validate");
+
         // perform new package handling
         request.package = request.package.map((value) => {
 
@@ -153,6 +155,8 @@ export class Protect {
 
             return value;
         }).concat(Observable.create((handle: Observer<[string, any]>) => {
+
+            console.log("Only run once");
 
             // create new inner request
             let innerRequest: any = Object.assign({}, request);

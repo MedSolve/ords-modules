@@ -127,7 +127,8 @@ export class MapExpress {
         if (req.headers.authorization !== undefined) {
 
             // split into parts
-            var parts = req.headers.authorization.split(' ');
+            var parts: any = req.headers.authorization;
+                parts = parts.split(' ');
 
             // create an observable request
             let request: proposals.main.types.Request = {
@@ -259,7 +260,8 @@ export class MapExpress {
         } else {
 
             // split into parts
-            var parts = req.headers.authorization.split(' ');
+            var parts: any = req.headers.authorization;
+                parts = parts.split(' ');
 
             // create an observable request
             let request: proposals.main.types.Request = {

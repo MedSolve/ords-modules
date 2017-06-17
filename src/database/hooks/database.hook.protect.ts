@@ -130,12 +130,12 @@ export class Protect {
                 this.authRule[innerRequest.package.resource](innerRequest, handle);
 
                 // if auth needs to be validated
-            } else if (innerRequest.package.runValidations) {
-
+            //} else if (innerRequest.package.runValidations) {
+                //
                 // if no auth is defined
-                if (!request.auth) {
-                    handle.error(new Error('NEED_LOGIN'));
-                }
+            //    if (!request.auth) {
+            //        handle.error(new Error('NEED_LOGIN'));
+            //    }
             } else {
                 handle.complete();
             }

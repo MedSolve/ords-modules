@@ -146,51 +146,45 @@ export class Protect {
                 resource: undefined
             };
 
-        console.log("trying to validate");
-
         // perform new package handling
         request.package = request.package.map((value) => {
-
             tempPackage[value[0]] = value[1];
-
             return value;
         }).concat(Observable.create((handle: Observer<[string, any]>) => {
 
-            console.log("Only run once");
+                // create new inner request
+                let innerRequest: any = Object.assign({}, request);
 
-            // create new inner request
-            let innerRequest: any = Object.assign({}, request);
+                // add reference to old package
+                innerRequest.package = tempPackage;
 
-            // add reference to old package
-            innerRequest.package = tempPackage;
+                // check validation to run and run it
+                if (innerRequest.package.runValidations && innerRequest.package.resource in this.schema) {
 
-            // check validation to run and run it
-            if (innerRequest.package.runValidations && innerRequest.package.resource in this.schema) {
-       
-                try {
-                    handle.next(['data', this.schema[innerRequest.package.resource].validate(innerRequest.package.data, true)]); 
-                    handle.complete();
-                } catch (e) {
+                    try {
+                        handle.next(['data', this.schema[innerRequest.package.resource].validate(innerRequest.package.data, true)]);
+                        handle.complete();
+                    } catch (e) {
 
-                    // check if object error
-                    if (Object.keys(e).length !== 0) {
-                        // array of total erros
-                        let totalErr: Array<any> = [];
-                        for (let err of Object.keys(e)) {
+                        // check if object error
+                        if (Object.keys(e).length !== 0) {
+                            // array of total erros
+                            let totalErr: Array<any> = [];
+                            for (let err of Object.keys(e)) {
 
-                            totalErr.push(err + ': ' + e[err].toString());
+                                totalErr.push(err + ': ' + e[err].toString());
+                            }
+                            handle.error(new Error(totalErr.join(',')));
+                        } else {
+                            handle.error(e);
                         }
-                        handle.error(new Error(totalErr.join(',')));
-                    } else {
-                        handle.error(e);
                     }
+                } else if (innerRequest.package.runValidations) {
+                    handle.error(new Error('SCHEMA UNDEFINED'));
+                } else {
+                    handle.complete();
                 }
-            } else if (innerRequest.package.runValidations) {
-                handle.error(new Error('SCHEMA UNDEFINED'));
-            } else {
-                handle.complete();
-            }
-        }));
+            }));
 
         return request;
     };
@@ -227,7 +221,7 @@ export class Protect {
             // check validation to run and run it
             if (innerRequest.package.runValidations && innerRequest.package.resource in this.schema) {
                 try {
-                    handle.next(['data', this.schema[innerRequest.package.resource].validate(innerRequest.package.data, false)]); 
+                    handle.next(['data', this.schema[innerRequest.package.resource].validate(innerRequest.package.data, false)]);
                     handle.complete();
                 } catch (e) {
 

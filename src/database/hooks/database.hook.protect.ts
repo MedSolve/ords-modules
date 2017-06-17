@@ -24,9 +24,9 @@ export namespace ProtectHookProposal {
 }
 
 export class Protect {
-    private schema: { [key: string]: schemaLib.SchemaValidation }
-    private authRule: { [key: string]: ProtectHookProposal.types.authRule }
-    public setScema(key: string, schema: schemaLib.SchemaValidation) {
+    private schema: { [key: string]: schemaLib.SchemaValidation } = {};
+    private authRule: { [key: string]: ProtectHookProposal.types.authRule } = {};
+    public setSchema(key: string, schema: schemaLib.SchemaValidation) {
         // bind schema
         this.schema[key] = schema;
     }
@@ -42,10 +42,55 @@ export class Protect {
     constructor(msr: ServiceRegistry) {
 
         msr.addPreHook(root, '/create/update/g', this.checkFollowSchemaSrict.bind(this));
+        msr.addPreHook(root, 'read', this.checkResourceExist.bind(this));
         msr.addPreHook(root, 'patch', this.checkFollowSchema.bind(this));
         msr.addPreHook(root, '*', this.checkAuthRule.bind(this));
 
     }
+    /**
+     * Check that a given resource exists by a schema existing for it
+     * @param request
+     */
+    private checkResourceExist(request: proposals.main.types.Request): proposals.main.types.Request {
+
+        // reference to total package
+        let tempPackage: proposals.database.Packages.Create |
+            proposals.database.Packages.Read |
+            proposals.database.Packages.Update |
+            proposals.database.Packages.Delete |
+            proposals.database.Packages.Patch = {
+                query: undefined,
+                resource: undefined
+            };
+
+        // perform new package handling
+        request.package = request.package.map((value) => {
+
+            tempPackage[value[0]] = value[1];
+
+            return value;
+        }).concat(Observable.create((handle: Observer<[string, any]>) => {
+
+            // create new inner request
+            let innerRequest: any = Object.assign({}, request);
+
+            // add reference to old package
+            innerRequest.package = tempPackage;
+
+            // check validation to run and run it
+            if (innerRequest.package.runValidations && innerRequest.package.resource in this.schema) {
+                handle.complete();
+            } else if (innerRequest.package.runValidations) {
+                handle.error(new Error('SCHEMA UNDEFINED'));
+                handle.complete();
+            } else {
+                handle.complete();
+            }
+
+        }));
+
+        return request;
+    };
     /**
      * Check that a given rule for a schema is followed
      * @param request
@@ -74,7 +119,7 @@ export class Protect {
             let innerRequest: any = Object.assign({}, request);
 
             // add reference to old package
-            innerRequest.package = innerRequest;
+            innerRequest.package = tempPackage;
 
             // check validation to run and run it
             if (innerRequest.package.runValidations && innerRequest.package.resource in this.authRule) {
@@ -114,7 +159,7 @@ export class Protect {
             let innerRequest: any = Object.assign({}, request);
 
             // add reference to old package
-            innerRequest.package = innerRequest;
+            innerRequest.package = tempPackage;
 
             // check validation to run and run it
             if (innerRequest.package.runValidations && innerRequest.package.resource in this.schema) {
@@ -157,7 +202,7 @@ export class Protect {
             let innerRequest: any = Object.assign({}, request);
 
             // add reference to old package
-            innerRequest.package = innerRequest;
+            innerRequest.package = tempPackage;
 
             // check validation to run and run it
             if (innerRequest.package.runValidations && innerRequest.package.resource in this.schema) {
